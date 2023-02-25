@@ -1,0 +1,112 @@
+package main
+
+type Iconset string
+
+const ICONSET_FEATHER Iconset = "feather"
+
+type MenuItem interface {
+	GetName() string
+	GetText() string
+	SetActive(bool)
+	IsActive() bool
+	IsSelected() bool
+	SetIcon(set Iconset, icon string)
+	GetIcon() string
+	GetIconset() Iconset
+	SetGroup(group string)
+	GetGroup() string
+}
+
+type Menu2 interface {
+	AddItem(item MenuItem)
+	GetItems() []MenuItem
+	SelectByName(name string)
+}
+
+type item struct {
+	parent  *menu
+	name    string
+	i18n    string
+	active  bool
+	iconset Iconset
+	icon    string
+	group   string
+}
+
+type menu struct {
+	items        []MenuItem
+	selectedItem string
+}
+
+func NewMenu() Menu2 {
+	return &menu{
+		items: make([]MenuItem, 0),
+	}
+}
+
+func (menu *menu) AddItem(item MenuItem) {
+	for i := 0; i < len(menu.items); i++ {
+		if menu.items[i].GetName() == item.GetName() {
+			//TODO: error; has item already
+			return
+		}
+	}
+	menu.items = append(menu.items, item)
+}
+
+func (menu *menu) SelectByName(name string) {
+	for i := 0; i < len(menu.items); i++ {
+		if menu.items[i].GetName() == name {
+			menu.selectedItem = name
+		}
+	}
+}
+
+func (menu *menu) GetItems() []MenuItem {
+	return menu.items
+}
+
+func NewMenuItem(name, i18n string) MenuItem {
+	return &item{
+		name:   name,
+		active: false,
+		i18n:   i18n,
+		parent: nil,
+	}
+}
+func (item *item) GetName() string {
+	return item.name
+}
+func (item *item) GetText() string {
+	return item.i18n
+}
+func (item *item) SetActive(a bool) {
+	item.active = a
+}
+func (item *item) IsActive() bool {
+	return item.active
+}
+func (item *item) IsSelected() bool {
+	if item.parent != nil {
+		if item.parent.selectedItem == item.name {
+			return true
+		}
+	}
+	return false
+}
+func (item *item) SetIcon(set Iconset, icon string) {
+	item.iconset = set
+	item.icon = icon
+}
+func (item *item) GetIcon() string {
+	return item.icon
+}
+func (item *item) GetIconset() Iconset {
+	return item.iconset
+}
+func (item *item) SetGroup(group string) {
+	item.group = group
+}
+func (item *item) GetGroup() string {
+	return item.group
+}
